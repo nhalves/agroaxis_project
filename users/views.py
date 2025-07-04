@@ -61,6 +61,8 @@ def impersonate_producer(request, pk):
 
     # Armazena o ID do admin original na sessão
     request.session['admin_original_id'] = request.user.pk
+    messages.debug(request, f"[IMPERSONATE] Admin original ID salvo na sessão: {request.session['admin_original_id']}")
+    request.session.save() # Força o salvamento da sessão
 
     auth_login(request, user_to_impersonate) # Loga o administrador como o produtor
     messages.info(request, f'Você está logado como {user_to_impersonate.username}.')
@@ -70,6 +72,7 @@ def impersonate_producer(request, pk):
 def unimpersonate(request):
     """Volta para o usuário administrador original após impersonation."""
     admin_original_id = request.session.get('admin_original_id')
+    messages.debug(request, f"[UNIMPERSONATE] Tentando desimpersonar. Admin original ID: {admin_original_id}")
 
     if admin_original_id:
         admin_user = get_object_or_404(User, pk=admin_original_id)
@@ -78,7 +81,7 @@ def unimpersonate(request):
         messages.info(request, 'Você voltou para o seu perfil de administrador.')
         return redirect('admin_dashboard') # Redireciona para o dashboard do admin
     else:
-        messages.error(request, 'Não foi possível voltar para o perfil de administrador. Sessão inválida.')
+        messages.error(request, 'Não foi possível voltar para o perfil de administrador. Sessão inválida ou não há impersonação ativa.')
         return redirect('dashboard') # Redireciona para o dashboard padrão
 
 @login_required

@@ -3,6 +3,7 @@ from django.db.models import Sum
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
+from users.views import is_admin # Importa a função is_admin
 from .models import Transaction
 from .forms import TransactionForm
 from .filters import TransactionFilter
@@ -28,16 +29,14 @@ def transaction_list(request):
     return render(request, 'finance/transaction_list.html', context)
 
 @login_required
+@user_passes_test(is_admin, login_url='/')
 def transaction_create(request):
     """Cria uma nova transação financeira."""
     if request.method == 'POST':
         form = TransactionForm(request.POST, user=request.user) # Pass user to form
         if form.is_valid():
             transaction = form.save(commit=False)
-            if request.user.is_staff: # Admin seleciona o produtor
-                transaction.user = form.cleaned_data['producer']
-            else: # Produtor é o próprio usuário logado
-                transaction.user = request.user
+            transaction.user = form.cleaned_data['producer'] # Admin seleciona o produtor
             transaction.save()
             messages.success(request, 'Transação cadastrada com sucesso!')
             return redirect('finance:transaction_list')
@@ -48,11 +47,12 @@ def transaction_create(request):
     return render(request, 'finance/transaction_form.html', {'form': form})
 
 @login_required
+@user_passes_test(is_admin, login_url='/')
 def transaction_update(request, pk):
     """Atualiza uma transação financeira existente."""
     transaction = get_object_or_404(Transaction, pk=pk)
-    # Garante que o produtor só possa editar suas próprias transações, a menos que seja admin
-    if not request.user.is_staff and transaction.user != request.user:
+    # Garante que o admin só possa editar transações de produtores
+    if not transaction.user.profile.user_type == 'producer':
         messages.error(request, 'Você não tem permissão para editar esta transação.')
         return redirect('finance:transaction_list')
 
@@ -60,8 +60,7 @@ def transaction_update(request, pk):
         form = TransactionForm(request.POST, instance=transaction, user=request.user) # Pass user to form
         if form.is_valid():
             transaction = form.save(commit=False)
-            if request.user.is_staff: # Admin pode mudar o produtor
-                transaction.user = form.cleaned_data['producer']
+            transaction.user = form.cleaned_data['producer'] # Admin pode mudar o produtor
             transaction.save()
             messages.success(request, 'Transação atualizada com sucesso!')
             return redirect('finance:transaction_list')

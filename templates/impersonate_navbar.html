@@ -1,0 +1,10 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-warning text-dark py-2">
+    <div class="container-fluid">
+        <span class="navbar-text me-auto">
+            <i class="fas fa-user-secret me-2"></i> Você está visualizando como: <strong>{{ request.user.username }}</strong>
+        </span>
+        <a href="{% url 'users:unimpersonate' %}" class="btn btn-dark btn-sm">
+            <i class="fas fa-undo me-2"></i> Voltar ao meu painel
+        </a>
+    </div>
+</nav>
