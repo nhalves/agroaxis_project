@@ -11,7 +11,7 @@ def custom_logout(request):
     return redirect('login')
 
 def is_admin(user):
-    return user.is_authenticated and hasattr(user, 'profile') and user.profile.user_type == 'admin'
+    return user.is_authenticated and user.is_staff
 
 @login_required
 @user_passes_test(is_admin)

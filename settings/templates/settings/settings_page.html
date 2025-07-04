@@ -14,11 +14,15 @@
     <div class="card-body">
         <h5 class="card-title">Configurações da Conta</h5>
         <p>Aqui você poderá alterar sua senha, email, etc.</p>
-        <a href="{% url 'users:producer_update' request.user.profile.pk %}" class="btn btn-primary">Editar Perfil</a>
+        <a href="{% url 'users:producer_update' request.user.profile.pk %}" class="btn btn-primary shadow-sm"><i class="fas fa-user-edit me-2"></i>Editar Perfil</a>
 
         <h5 class="card-title mt-4">Configurações do Sistema</h5>
         <p>Opções gerais do sistema (apenas para administradores).</p>
-        <a href="{% url 'admin:finance_category_changelist' %}" class="btn btn-primary">Gerenciar Categorias Financeiras</a>
+        {% if user.is_staff %}
+        <a href="{% url 'admin:finance_category_changelist' %}" class="btn btn-info shadow-sm"><i class="fas fa-tags me-2"></i>Gerenciar Categorias Financeiras</a>
+        {% else %}
+        <p class="text-muted">Você não tem permissão para acessar as configurações do sistema.</p>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

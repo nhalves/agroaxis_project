@@ -127,7 +127,7 @@ USE_I18N = True
 
 USE_TZ = True
 
-LOGIN_URL = 'login' # Redireciona para a página de login
+LOGIN_URL = 'users:login' # Redireciona para a página de login
 LOGIN_REDIRECT_URL = '/' # Redireciona para o dashboard após o login
 
 # Static files (CSS, JavaScript, Images)
