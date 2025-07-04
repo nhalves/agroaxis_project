@@ -14,5 +14,6 @@ urlpatterns = [
     path('producers/add/', views.producer_create, name='producer_create'),
     path('producers/<int:pk>/edit/', views.producer_update, name='producer_update'),
     path('producers/<int:pk>/impersonate/', views.impersonate_producer, name='impersonate_producer'),
+    path('unimpersonate/', views.unimpersonate, name='unimpersonate'), # Nova URL para voltar ao admin
     path('producers/<int:pk>/toggle-status/', views.toggle_producer_status, name='toggle_producer_status'),
 ]

@@ -51,6 +51,9 @@
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
                                 {% if user.is_staff %}
                                     <li><a class="dropdown-item" href="{% url 'admin_dashboard' %}">Painel do Admin</a></li>
+                                    {% if request.session.admin_original_id %}
+                                        <li><a class="dropdown-item text-warning" href="{% url 'users:unimpersonate' %}"><i class="fas fa-undo me-2"></i>Voltar ao Admin</a></li>
+                                    {% endif %}
                                     <li><hr class="dropdown-divider"></li>
                                 {% endif %}
                                 <li><a class="dropdown-item" href="{% url 'settings:settings_page' %}">Configurações</a></li>
