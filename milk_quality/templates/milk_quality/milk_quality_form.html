@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if form.instance.pk %}Editar{% else %}Adicionar{% endif %} Qualidade do Leite - AgroAxis{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h3 class="mb-0">{% if form.instance.pk %}Editar Registro{% else %}Novo Registro de Qualidade do Leite{% endif %}</h3>
+            </div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {% if user.is_staff %}
+                    <div class="mb-3">
+                        {{ form.producer.label_tag }}
+                        {{ form.producer }}
+                        {% for error in form.producer.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                    </div>
+                    {% endif %}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.animal.label_tag }}
+                            {{ form.animal }}
+                            {% for error in form.animal.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.date.label_tag }}
+                            {{ form.date }}
+                            {% for error in form.date.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            {{ form.ccs.label_tag }}
+                            {{ form.ccs }}
+                            {% for error in form.ccs.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            {{ form.cbt.label_tag }}
+                            {{ form.cbt }}
+                            {% for error in form.cbt.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            {{ form.production_volume.label_tag }}
+                            {{ form.production_volume }}
+                            {% for error in form.production_volume.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                        </div>
+                    </div>
+                    <hr class="my-4">
+                    <div class="d-flex justify-content-end">
+                        <a href="{% url 'milk_quality:milk_quality_list' %}" class="btn btn-light me-2">Cancelar</a>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Salvar Registro</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('form select, form input[type="text"], form input[type="number"], form input[type="date"]').forEach(function(element) {
+            element.classList.add('form-control');
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if form.instance.pk %}Editar{% else %}Adicionar{% endif %} Produtor - AgroAxis{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h3 class="mb-0">{% if form.instance.pk %}Editar Produtor{% else %}Adicionar Novo Produtor{% endif %}</h3>
+            </div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger" role="alert">
+                            {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.username.label_tag }}
+                            {{ form.username }}
+                            {% for error in form.username.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.email.label_tag }}
+                            {{ form.email }}
+                            {% for error in form.email.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        {{ form.password.label_tag }}
+                        {{ form.password }}
+                        {% if form.instance.pk %}
+                            <small class="form-text text-muted">Deixe em branco para não alterar a senha.</small>
+                        {% endif %}
+                        {% for error in form.password.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="form-check mb-3">
+                        {{ form.is_active }}
+                        <label class="form-check-label" for="{{ form.is_active.id_for_label }}">{{ form.is_active.label }}</label>
+                        {% for error in form.is_active.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                    </div>
+                    <hr class="my-4">
+                    <div class="d-flex justify-content-end">
+                        <a href="{% url 'users:producer_list' %}" class="btn btn-light me-2">Cancelar</a>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Salvar Produtor</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('form select, form input[type="text"], form input[type="email"], form input[type="password"], form input[type="number"], form input[type="date"], form textarea').forEach(function(element) {
+            if (!element.classList.contains('form-check-input')) { // Evita aplicar a checkbox
+                element.classList.add('form-control');
+            }
+        });
+    });
+</script>
+{% endblock %}

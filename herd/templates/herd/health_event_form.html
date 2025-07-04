@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if form.instance.pk %}Editar{% else %}Adicionar{% endif %} Evento Sanitário - AgroAxis{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h3 class="mb-0">{% if form.instance.pk %}Editar Evento Sanitário{% else %}Adicionar Novo Evento Sanitário{% endif %}</h3>
+            </div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.animal.label_tag }}
+                            {{ form.animal }}
+                            {% for error in form.animal.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.event_type.label_tag }}
+                            {{ form.event_type }}
+                            {% for error in form.event_type.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.date.label_tag }}
+                            {{ form.date }}
+                            {% for error in form.date.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.description.label_tag }}
+                            {{ form.description }}
+                            {% for error in form.description.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                        </div>
+                    </div>
+                    <hr class="my-4">
+                    <div class="d-flex justify-content-end">
+                        <a href="{% url 'herd:animal_detail' animal.pk %}" class="btn btn-light me-2">Cancelar</a>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Salvar Evento</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('form select, form input[type="text"], form input[type="number"], form input[type="date"], form textarea').forEach(function(element) {
+            element.classList.add('form-control');
+        });
+    });
+</script>
+{% endblock %}

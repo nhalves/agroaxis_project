@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}Gestão Financeira - AgroAxis{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3">Gestão Financeira</h1>
+    <div>
+        <a href="{% url 'finance:finance_report' %}" class="btn btn-info shadow-sm"><i class="fas fa-chart-line me-2"></i>Relatório</a>
+        <a href="{% url 'finance:transaction_create' %}" class="btn btn-primary shadow-sm"><i class="fas fa-plus me-2"></i>Nova Transação</a>
+    </div>
+</div>
+
+<!-- Filtros -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            {% for field in filter.form %}
+                <div class="col-md-3">
+                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                    {{ field }}
+                </div>
+            {% endfor %}
+            <div class="col-md-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-secondary me-2"><i class="fas fa-filter me-2"></i>Filtrar</button>
+                <a href="{% url 'finance:transaction_list' %}" class="btn btn-outline-secondary"><i class="fas fa-times me-2"></i>Limpar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Tabela de Transações -->
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Tipo</th>
+                        <th>Valor</th>
+                        <th>Data</th>
+                        <th>Categoria</th>
+                        <th>Descrição</th>
+                        {% if user.is_staff %}<th>Produtor</th>{% endif %}
+                        <th class="text-center">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transaction in page_obj %}
+                    <tr>
+                        <td>
+                            {% if transaction.transaction_type == 'receita' %}
+                                <span class="badge rounded-pill badge-success">Receita</span>
+                            {% else %}
+                                <span class="badge rounded-pill badge-danger">Despesa</span>
+                            {% endif %}
+                        </td>
+                        <td class="fw-bold {% if transaction.transaction_type == 'receita' %}text-success{% else %}text-danger{% endif %}">R$ {{ transaction.amount|floatformat:2 }}</td>
+                        <td>{{ transaction.date|date:"d/m/Y" }}</td>
+                        <td>{{ transaction.category.name|default:"-" }}</td>
+                        <td>{{ transaction.description|truncatechars:30|default:"-" }}</td>
+                        {% if user.is_staff %}<td>{{ transaction.user.username }}</td>{% endif %}
+                        <td class="text-center">
+                            <a href="{% url 'finance:transaction_update' transaction.pk %}" class="btn btn-sm btn-outline-info" data-mdb-toggle="tooltip" title="Editar">
+                                <i class="fas fa-pencil-alt"></i>
+                            </a>
+                            <a href="{% url 'finance:transaction_delete' transaction.pk %}" class="btn btn-sm btn-outline-danger" data-mdb-toggle="tooltip" title="Excluir">
+                                <i class="fas fa-trash-alt"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="{% if user.is_staff %}7{% else %}6{% endif %}" class="text-center py-5">
+                            <i class="fas fa-search-dollar fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Nenhuma transação encontrada.</h5>
+                            <p>Tente ajustar os filtros ou <a href="{% url 'finance:transaction_create' %}">adicione uma nova transação</a>.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Paginação -->
+        {% if page_obj.has_other_pages %}
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?page=1&{{ request.GET.urlencode }}">Primeira</a></li>
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&{{ request.GET.urlencode }}">&laquo;</a></li>
+                {% else %}
+                    <li class="page-item disabled"><a class="page-link" href="#">Primeira</a></li>
+                    <li class="page-item disabled"><a class="page-link" href="#">&laquo;</a></li>
+                {% endif %}
+
+                {% for i in page_obj.paginator.get_elided_page_range %}
+                    {% if page_obj.number == i %}
+                        <li class="page-item active"><a class="page-link" href="#">{{ i }}</a></li>
+                    {% else %}
+                        <li class="page-item"><a class="page-link" href="?page={{ i }}&{{ request.GET.urlencode }}">{{ i }}</a></li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&{{ request.GET.urlencode }}">&raquo;</a></li>
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}&{{ request.GET.urlencode }}">Última</a></li>
+                {% else %}
+                    <li class="page-item disabled"><a class="page-link" href="#">&raquo;</a></li>
+                    <li class="page-item disabled"><a class="page-link" href="#">Última</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,20 @@
+# Arquivos de cache do Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Banco de dados local
+db.sqlite3
+
+# Arquivos de ambiente
+.env
+
+# Diretórios de dependências
+venv/
+.venv/
+env/
+
+# Arquivos de IDE
+.idea/
+.vscode/

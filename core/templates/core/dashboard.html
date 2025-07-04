@@ -1,0 +1,228 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - AgroAxis{% endblock %}
+
+{% block container_class %}container-fluid{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 mb-4">
+        <h1 class="h3">Dashboard do Produtor</h1>
+        <p class="text-muted">Resumo da sua propriedade.</p>
+    </div>
+</div>
+
+<!-- Cards de Resumo -->
+<div class="row">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Qualidade (CCS)</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ avg_ccs|floatformat:0 }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-vial fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Receitas (Mês)</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">R$ {{ monthly_revenue|floatformat:2 }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-danger shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Despesas (Mês)</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">R$ {{ monthly_expense|floatformat:2 }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-receipt fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Alertas</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ alerts|length }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Alertas Dinâmicos -->
+{% if alerts %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-warning">Alertas Importantes</h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    {% for alert in alerts %}
+                    <li class="list-group-item list-group-item-warning">{{ alert }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Gráficos -->
+<div class="row">
+    <div class="col-xl-6 col-lg-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Produção de Leite (Últimos 6 Meses)</h6>
+            </div>
+            <div class="card-body">
+                <div class="chart-area" style="height: 320px;">
+                    <canvas id="milkProductionChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-6 col-lg-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Evolução CCS/CBT (Últimos 6 Meses)</h6>
+            </div>
+            <div class="card-body">
+                <div class="chart-area" style="height: 320px;">
+                    <canvas id="ccsCbtChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-12 col-lg-12 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Fluxo de Caixa Mensal (Últimos 6 Meses)</h6>
+            </div>
+            <div class="card-body">
+                <div class="chart-area" style="height: 320px;">
+                    <canvas id="financeChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Gráfico de Produção de Leite
+        const ctxMilk = document.getElementById('milkProductionChart');
+        if (ctxMilk) {
+            new Chart(ctxMilk, {
+                type: 'line',
+                data: {
+                    labels: {{ milk_chart_labels|safe }},
+                    datasets: [{
+                        label: 'Volume de Leite (Litros)',
+                        data: {{ milk_chart_volumes|safe }},
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Gráfico de CCS/CBT
+        const ctxCcsCbt = document.getElementById('ccsCbtChart');
+        if (ctxCcsCbt) {
+            new Chart(ctxCcsCbt, {
+                type: 'line',
+                data: {
+                    labels: {{ ccs_chart_labels|safe }},
+                    datasets: [
+                        { label: 'CCS', data: {{ ccs_chart_values|safe }}, borderColor: 'rgb(255, 99, 132)', tension: 0.1, fill: false },
+                        { label: 'CBT', data: {{ cbt_chart_values|safe }}, borderColor: 'rgb(54, 162, 235)', tension: 0.1, fill: false }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+
+        // Gráfico de Fluxo de Caixa
+        const ctxFinance = document.getElementById('financeChart');
+        if (ctxFinance) {
+            new Chart(ctxFinance, {
+                type: 'bar',
+                data: {
+                    labels: {{ finance_labels|safe }},
+                    datasets: [
+                        {
+                            label: 'Receitas',
+                            data: {{ finance_revenues|safe }},
+                            backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                        },
+                        {
+                            label: 'Despesas',
+                            data: {{ finance_expenses|safe }},
+                            backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { stacked: true },
+                        y: { stacked: true, beginAtZero: true }
+                    }
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

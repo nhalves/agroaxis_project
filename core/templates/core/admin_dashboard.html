@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - AgroAxis{% endblock %}
+
+{% block container_class %}container-fluid{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3">Painel do Administrador</h1>
+    <a href="{% url 'users:producer_create' %}" class="btn btn-primary shadow-sm">
+        <i class="fas fa-plus-circle me-2"></i>Adicionar Produtor
+    </a>
+</div>
+
+<!-- Cards de Resumo do Admin -->
+<div class="row mb-4">
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total de Produtores</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_producers }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-users fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Produtores Ativos</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ active_producers }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-user-check fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="card border-left-danger shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Produtores Inativos</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ inactive_producers }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-user-slash fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Lista de Produtores -->
+<div class="row">
+    {% for producer in producers %}
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">{{ producer.user.get_full_name|default:producer.user.username }}</h6>
+                <div class="dropdown no-arrow">
+                    <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink-{{ producer.pk }}" data-mdb-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end shadow animated--fade-in" aria-labelledby="dropdownMenuLink-{{ producer.pk }}">
+                        <div class="dropdown-header">Ações:</div>
+                        <a class="dropdown-item" href="{% url 'users:producer_update' producer.pk %}">Editar Produtor</a>
+                        <a class="dropdown-item" href="#">Ver Relatórios</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-warning" href="{% url 'users:impersonate_producer' producer.pk %}">Logar como {{ producer.user.username }}</a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-muted">Status da Conta:</span>
+                    <span class="badge bg-{{ producer.health_indicator }}">{{ producer.display_status }}</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="text-muted">Saúde da Fazenda:</span>
+                    <span class="badge bg-{{ producer.health_indicator }}">{{ producer.health_indicator|capfirst }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="card text-center py-5">
+            <div class="card-body">
+                <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                <h5 class="card-title">Nenhum Produtor Cadastrado</h5>
+                <p class="card-text">Comece adicionando um novo produtor para gerenciar seus dados.</p>
+                <a href="{% url 'users:producer_create' %}" class="btn btn-primary mt-3">Adicionar Primeiro Produtor</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

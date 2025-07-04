@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalhes do Animal - AgroAxis{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3">Detalhes do Animal: {{ animal.name }} ({{ animal.earring }})</h1>
+    <div>
+        <a href="{% url 'herd:animal_update' animal.pk %}" class="btn btn-warning shadow-sm"><i class="fas fa-edit me-2"></i>Editar Animal</a>
+        <a href="{% url 'herd:animal_list' %}" class="btn btn-secondary shadow-sm"><i class="fas fa-arrow-left me-2"></i>Voltar para a Lista</a>
+    </div>
+</div>
+
+<div class="card mb-4 shadow-sm">
+    <div class="card-body">
+        <h5 class="card-title text-primary">Informações Básicas</h5>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item"><strong>Brinco:</strong> {{ animal.earring }}</li>
+            <li class="list-group-item"><strong>Nome:</strong> {{ animal.name }}</li>
+            <li class="list-group-item"><strong>Data de Nascimento:</strong> {{ animal.birth_date|date:"d/m/Y" }}</li>
+            <li class="list-group-item"><strong>Raça:</strong> {{ animal.breed|default:"Não informada" }}</li>
+            <li class="list-group-item"><strong>Status:</strong> <span class="badge bg-secondary">{{ animal.get_status_display }}</span></li>
+            {% if user.is_staff %}
+            <li class="list-group-item"><strong>Produtor:</strong> {{ animal.user.username }}</li>
+            {% endif %}
+        </ul>
+    </div>
+</div>
+
+<div class="card mb-4 shadow-sm">
+    <div class="card-body">
+        <h5 class="card-title text-primary">Histórico de Qualidade do Leite</h5>
+        {% if animal.milk_quality_records.all %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Data</th>
+                        <th>CCS (x1000)</th>
+                        <th>CBT (x1000)</th>
+                        <th>Volume (L)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in animal.milk_quality_records.all %}
+                    <tr>
+                        <td>{{ record.date|date:"d/m/Y" }}</td>
+                        <td>{{ record.ccs }}</td>
+                        <td>{{ record.cbt }}</td>
+                        <td>{{ record.production_volume|default:"-" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted">Nenhum registro de qualidade do leite para este animal.</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card mb-4 shadow-sm">
+    <div class="card-body">
+        <h5 class="card-title text-primary">Eventos Reprodutivos <a href="{% url 'herd:reproductive_event_create' animal.pk %}" class="btn btn-sm btn-success float-end shadow-sm"><i class="fas fa-plus me-2"></i>Adicionar Evento</a></h5>
+        {% if reproductive_events %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Tipo</th>
+                        <th>Data</th>
+                        <th>Descrição</th>
+                        <th class="text-center">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in reproductive_events %}
+                    <tr>
+                        <td>{{ event.get_event_type_display }}</td>
+                        <td>{{ event.event_date|date:"d/m/Y" }}</td>
+                        <td>{{ event.description|default:"-" }}</td>
+                        <td class="text-center">
+                            <a href="{% url 'herd:reproductive_event_update' event.pk %}" class="btn btn-sm btn-outline-info" data-mdb-toggle="tooltip" title="Editar">
+                                <i class="fas fa-pencil-alt"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted">Nenhum evento reprodutivo registrado para este animal.</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card mb-4 shadow-sm">
+    <div class="card-body">
+        <h5 class="card-title text-primary">Eventos Sanitários <a href="{% url 'herd:health_event_create' animal.pk %}" class="btn btn-sm btn-success float-end shadow-sm"><i class="fas fa-plus me-2"></i>Adicionar Evento</a></h5>
+        {% if health_events %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Tipo</th>
+                        <th>Data</th>
+                        <th>Descrição</th>
+                        <th>Medicação</th>
+                        <th>Carência (dias)</th>
+                        <th class="text-center">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in health_events %}
+                    <tr>
+                        <td>{{ event.get_event_type_display }}</td>
+                        <td>{{ event.event_date|date:"d/m/Y" }}</td>
+                        <td>{{ event.description|default:"-" }}</td>
+                        <td>{{ event.medication|default:"-" }}</td>
+                        <td>{{ event.withdrawal_period_days|default:"-" }}</td>
+                        <td class="text-center">
+                            <a href="{% url 'herd:health_event_update' event.pk %}" class="btn btn-sm btn-outline-info" data-mdb-toggle="tooltip" title="Editar">
+                                <i class="fas fa-pencil-alt"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted">Nenhum evento sanitário registrado para este animal.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}Configurações - AgroAxis{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 mb-4">
+        <h1 class="h3">Configurações</h1>
+        <p class="text-muted">Gerencie as configurações da sua conta e do sistema.</p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">Configurações da Conta</h5>
+        <p>Aqui você poderá alterar sua senha, email, etc.</p>
+        <a href="{% url 'users:producer_update' request.user.profile.pk %}" class="btn btn-primary">Editar Perfil</a>
+
+        <h5 class="card-title mt-4">Configurações do Sistema</h5>
+        <p>Opções gerais do sistema (apenas para administradores).</p>
+        <a href="{% url 'admin:finance_category_changelist' %}" class="btn btn-primary">Gerenciar Categorias Financeiras</a>
+    </div>
+</div>
+{% endblock %}

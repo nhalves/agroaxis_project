@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if form.instance.pk %}Editar{% else %}Adicionar{% endif %} Transação - AgroAxis{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h3 class="mb-0">{% if form.instance.pk %}Editar Transação{% else %}Adicionar Nova Transação{% endif %}</h3>
+            </div>
+            <div class="card-body">
+                <p class="card-text text-muted mb-4">Preencha os detalhes da transação financeira abaixo.</p>
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {% if user.is_staff %}
+                    <div class="mb-3">
+                        {{ form.producer.label_tag }}
+                        {{ form.producer }}
+                        {% for error in form.producer.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                    </div>
+                    {% endif %}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.transaction_type.label_tag }}
+                            {{ form.transaction_type }}
+                            {% for error in form.transaction_type.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.date.label_tag }}
+                            {{ form.date }}
+                            {% for error in form.date.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.amount.label_tag }}
+                            <div class="input-group">
+                                <span class="input-group-text">R$</span>
+                                {{ form.amount }}
+                            </div>
+                            {% for error in form.amount.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.category.label_tag }}
+                            {{ form.category }}
+                            {% for error in form.category.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        {{ form.description.label_tag }}
+                        {{ form.description }}
+                        {% if form.description.help_text %}<div class="form-text">{{ form.description.help_text }}</div>{% endif %}
+                        {% for error in form.description.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                    </div>
+                    <hr class="my-4">
+                    <div class="d-flex justify-content-end">
+                        <a href="{% url 'finance:transaction_list' %}" class="btn btn-light me-2">Cancelar</a>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Salvar Transação</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Adiciona classes do Bootstrap/MDB aos campos do formulário
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('form select, form input[type="text"], form input[type="number"], form input[type="date"], form textarea').forEach(function(element) {
+            element.classList.add('form-control');
+        });
+    });
+</script>
+{% endblock %}

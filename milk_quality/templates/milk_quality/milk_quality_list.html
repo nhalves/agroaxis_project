@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}Qualidade do Leite - AgroAxis{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3">Qualidade do Leite</h1>
+    <a href="{% url 'milk_quality:milk_quality_create' %}" class="btn btn-primary shadow-sm"><i class="fas fa-plus me-2"></i>Adicionar Registro</a>
+</div>
+
+<!-- Filtros -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            {% for field in filter.form %}
+                <div class="col-md-3">
+                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                    {{ field }}
+                </div>
+            {% endfor %}
+            <div class="col-md-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-secondary me-2"><i class="fas fa-filter me-2"></i>Filtrar</button>
+                <a href="{% url 'milk_quality:milk_quality_list' %}" class="btn btn-outline-secondary"><i class="fas fa-times me-2"></i>Limpar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Tabela de Registros -->
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Animal</th>
+                        <th>Data</th>
+                        <th>CCS (x1000)</th>
+                        <th>CBT (x1000)</th>
+                        <th>Volume (L)</th>
+                        {% if user.is_staff %}<th>Produtor</th>{% endif %}
+                        <th class="text-center">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in page_obj %}
+                    <tr>
+                        <td>{{ record.animal.name }} ({{ record.animal.earring }})</td>
+                        <td>{{ record.date|date:"d/m/Y" }}</td>
+                        <td>{{ record.ccs }}</td>
+                        <td>{{ record.cbt }}</td>
+                        <td>{{ record.production_volume|default:"-" }}</td>
+                        {% if user.is_staff %}<td>{{ record.user.username }}</td>{% endif %}
+                        <td class="text-center">
+                            <a href="{% url 'milk_quality:milk_quality_update' record.pk %}" class="btn btn-sm btn-outline-info" data-mdb-toggle="tooltip" title="Editar">
+                                <i class="fas fa-pencil-alt"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="{% if user.is_staff %}7{% else %}6{% endif %}" class="text-center py-5">
+                            <i class="fas fa-tint fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Nenhum registro de qualidade do leite encontrado.</h5>
+                            <p>Tente ajustar os filtros ou <a href="{% url 'milk_quality:milk_quality_create' %}">adicione um novo registro</a>.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Paginação -->
+        {% if page_obj.has_other_pages %}
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?page=1&{{ request.GET.urlencode }}">Primeira</a></li>
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&{{ request.GET.urlencode }}">&laquo;</a></li>
+                {% else %}
+                    <li class="page-item disabled"><a class="page-link" href="#">Primeira</a></li>
+                    <li class="page-item disabled"><a class="page-link" href="#">&laquo;</a></li>
+                {% endif %}
+
+                {% for i in page_obj.paginator.get_elided_page_range %}
+                    {% if page_obj.number == i %}
+                        <li class="page-item active"><a class="page-link" href="#">{{ i }}</a></li>
+                    {% else %}
+                        <li class="page-item"><a class="page-link" href="?page={{ i }}&{{ request.GET.urlencode }}">{{ i }}</a></li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&{{ request.GET.urlencode }}">&raquo;</a></li>
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}&{{ request.GET.urlencode }}">Última</a></li>
+                {% else %}
+                    <li class="page-item disabled"><a class="page-link" href="#">&raquo;</a></li>
+                    <li class="page-item disabled"><a class="page-link" href="#">Última</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

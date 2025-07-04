@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}Relatório Financeiro - AgroAxis{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 mb-4">
+        <h1 class="h3">Relatório Financeiro</h1>
+        <p class="text-muted">Visão geral das finanças e custo de produção.</p>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Fluxo de Caixa -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Fluxo de Caixa Total</h5>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Receitas Totais:
+                        <span class="badge bg-success">R$ {{ total_revenue|floatformat:2 }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Despesas Totais:
+                        <span class="badge bg-danger">R$ {{ total_expense|floatformat:2 }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Saldo:
+                        <span class="badge bg-{% if balance >= 0 %}success{% else %}danger{% endif %}">R$ {{ balance|floatformat:2 }}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custo de Produção -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Custo de Produção</h5>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Volume Total de Leite Produzido:
+                        <span class="badge bg-info">{{ total_production_volume|floatformat:2 }} Litros</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Custo por Litro de Leite:
+                        <span class="badge bg-primary">R$ {{ cost_per_liter|floatformat:2 }}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

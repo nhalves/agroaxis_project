@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+
+{% block title %}Análises - AgroAxis{% endblock %}
+
+{% block container_class %}container-fluid{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 mb-4">
+        <h1 class="h3">Análises da Fazenda</h1>
+        <p class="text-muted">Visualize os principais indicadores e tendências.</p>
+    </div>
+</div>
+
+{% if user.is_staff %}
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <h5 class="card-title">Selecionar Produtor</h5>
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-6 mb-3">
+                <label for="producer_select" class="form-label">Produtor:</label>
+                <select name="producer" id="producer_select" class="form-select">
+                    <option value="">-- Selecione um Produtor --</option>
+                    {% for producer_profile in producers %}
+                        <option value="{{ producer_profile.pk }}" {% if selected_producer and selected_producer.pk == producer_profile.user.pk %}selected{% endif %}>{{ producer_profile.user.username }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3 mb-3">
+                <button type="submit" class="btn btn-primary">Filtrar</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+{% if selected_producer %}
+<div class="row">
+    <div class="col-12 mb-4">
+        <h4 class="text-primary">Dados para: {{ selected_producer.username }}</h4>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-6 col-lg-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Produção de Leite (Últimos 6 Meses)</h6>
+            </div>
+            <div class="card-body">
+                <div class="chart-area" style="height: 320px;">
+                    <canvas id="milkProductionChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-6 col-lg-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Evolução CCS/CBT (Últimos 6 Meses)</h6>
+            </div>
+            <div class="card-body">
+                <div class="chart-area" style="height: 320px;">
+                    <canvas id="ccsCbtChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-12 col-lg-12 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Fluxo de Caixa Mensal (Últimos 6 Meses)</h6>
+            </div>
+            <div class="card-body">
+                <div class="chart-area" style="height: 320px;">
+                    <canvas id="financeChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% else %}
+<div class="row">
+    <div class="col-12">
+        <div class="card text-center py-5">
+            <div class="card-body">
+                <i class="fas fa-chart-pie fa-3x text-muted mb-3"></i>
+                <h5 class="card-title">Nenhum dado para exibir</h5>
+                <p class="card-text">Selecione um produtor acima para visualizar as análises.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Gráfico de Produção de Leite
+        const ctxMilk = document.getElementById('milkProductionChart');
+        if (ctxMilk) {
+            new Chart(ctxMilk, {
+                type: 'line',
+                data: {
+                    labels: {{ milk_chart_labels|safe }},
+                    datasets: [{
+                        label: 'Volume de Leite (Litros)',
+                        data: {{ milk_chart_volumes|safe }},
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Gráfico de CCS/CBT
+        const ctxCcsCbt = document.getElementById('ccsCbtChart');
+        if (ctxCcsCbt) {
+            new Chart(ctxCcsCbt, {
+                type: 'line',
+                data: {
+                    labels: {{ ccs_chart_labels|safe }},
+                    datasets: [
+                        { label: 'CCS', data: {{ ccs_chart_values|safe }}, borderColor: 'rgb(255, 99, 132)', tension: 0.1, fill: false },
+                        { label: 'CBT', data: {{ cbt_chart_values|safe }}, borderColor: 'rgb(54, 162, 235)', tension: 0.1, fill: false }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+
+        // Gráfico de Fluxo de Caixa
+        const ctxFinance = document.getElementById('financeChart');
+        if (ctxFinance) {
+            new Chart(ctxFinance, {
+                type: 'bar',
+                data: {
+                    labels: {{ finance_labels|safe }},
+                    datasets: [
+                        {
+                            label: 'Receitas',
+                            data: {{ finance_revenues|safe }},
+                            backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                        },
+                        {
+                            label: 'Despesas',
+                            data: {{ finance_expenses|safe }},
+                            backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { stacked: true },
+                        y: { stacked: true, beginAtZero: true }
+                    }
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}
