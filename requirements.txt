@@ -1,4 +1,4 @@
 Django>=5.0,<6.0
 django-extensions
-django-filters
+django-filter
 psycopg2-binary
